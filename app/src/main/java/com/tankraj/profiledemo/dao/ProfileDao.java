@@ -8,27 +8,27 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.tankraj.profiledemo.model.Profile;
+import com.tankraj.profiledemo.entity.ProfileEntity;
 
 import java.util.List;
 
 @Dao
 public interface ProfileDao {
 
-    @Query("SELECT * FROM Profile ORDER BY priority")
-    LiveData<List<Profile>> loadAllTasks();
+    @Query("SELECT * FROM profiles ORDER BY updated_at")
+    LiveData<List<ProfileEntity>> loadAllProfiles();
 
-    @Query("SELECT * FROM Profile WHERE id=:id")
-    LiveData<Profile> loadTaskById(int id);
+    @Query("SELECT * FROM profiles WHERE id=:id")
+    LiveData<ProfileEntity> loadProfileById(int id);
 
     @Insert
-    void insertTask(Profile profile);
+    void insertProfile(ProfileEntity profileEntity);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void updateTask(Profile profile);
+    void updateProfile(ProfileEntity profileEntity);
 
     @Delete
-    void deleteTask(Profile profile);
+    void deleteProfile(ProfileEntity profileEntity);
 
 
 }

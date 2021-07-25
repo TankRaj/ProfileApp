@@ -1,16 +1,13 @@
 <resources>
     <string name="app_name">ProfileDemo</string>
-    <string name="main_activity_name">All Tasks</string>
-    <string name="add_task_activity_name">Add a New Task</string>
+    <string name="main_activity_name">All Profiles</string>
+    <string name="add_profile_activity_name">Add New Profile</string>
 
-    <!-- Strings for MainActivity -->
     <string name="priority_1">1</string>
     <string name="priority_2">2</string>
     <string name="priority_3">3</string>
 
-    <!-- Strings for AddTaskActivity -->
-    <!-- This etaskEntrytask has a unicode character for "..." = "&#8230;" -->
-    <string name="edit_task_description">Describe your profile&#8230;</string>
+    <string name="edit_profile_description">Describe your profileEntity&#8230;</string>
     <string name="priority_string">Priority</string>
 
     <string name="high_priority">High</string>
@@ -26,4 +23,6 @@
     <string name="android">Android</string>
     <string name="ios">iOS</string>
     <string name="device">Device</string>
+    <string name="no_profiles">No profiles created yet, please click fab button to add some profiles!</string>
+    <string name="no_filtered_profiles">There are no profiles on the selected dates!</string>
 </resources>

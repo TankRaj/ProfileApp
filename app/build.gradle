@@ -16,6 +16,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    /*Auto name apk*/
+//    applicationVariants.all { variant ->
+//        variant.outputs.all {
+//            def project = "PROFILE_APP"
+//            def SEP = "_"
+//            def buildType = variant.buildType.name
+//            def date = new Date()
+//            def fromatDate = date.format('dd_MMM_yy_HH_mm')
+//            def apkName = project + SEP + buildType + SEP + fromatDate + ".apk"
+//            outputFileName = new File(apkName)
+//        }
+//    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -56,5 +69,8 @@ dependencies {
 
     //expandable fab
     implementation 'com.nambimobile.widgets:expandable-fab:1.0.2'
+
+    //circular image view
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 
 }

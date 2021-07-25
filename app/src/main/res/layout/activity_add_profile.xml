@@ -31,7 +31,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@drawable/ic_photo_upload" />
 
             <EditText
                 android:id="@+id/et_name"
@@ -151,6 +151,7 @@
 
 
             <EditText
+                android:id="@+id/et_bio"
                 android:layout_width="fill_parent"
                 android:layout_height="150dp"
                 android:layout_marginTop="10dp"

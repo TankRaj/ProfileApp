@@ -1,28 +1,28 @@
 package com.tankraj.profiledemo.ui.profile;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tankraj.profiledemo.R;
-import com.tankraj.profiledemo.model.Profile;
+import com.tankraj.profiledemo.entity.ProfileEntity;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.TaskViewHolder> {
+public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.profilesViewHolder> {
 
     private static final String DATE_FORMAT = "dd/MM/yyy";
 
     final private ItemClickListener mItemClickListener;
-    private List<Profile> mTaskEntries;
+    private List<ProfileEntity> profileEntities;
     private Context mContext;
     private SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
 
@@ -34,92 +34,87 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.TaskView
 
 
     @Override
-    public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public profilesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.task_layout, parent, false);
+                .inflate(R.layout.item_profile, parent, false);
 
-        return new TaskViewHolder(view);
+        return new profilesViewHolder(view);
     }
 
 
     @Override
-    public void onBindViewHolder(TaskViewHolder holder, int position) {
+    public void onBindViewHolder(profilesViewHolder holder, int position) {
 
-        Profile profile = mTaskEntries.get(position);
-        String description = profile.getDescription();
-        int priority = profile.getPriority();
-        String updatedAt = dateFormat.format(profile.getUpdatedAt());
+        ProfileEntity profileEntity = profileEntities.get(position);
+        String description = profileEntity.getName();
+//        int priority = profileEntity.getPriority();
+        String updatedAt = dateFormat.format(profileEntity.getUpdatedAt());
 
-        holder.taskDescriptionView.setText(description);
-        holder.updatedAtView.setText(updatedAt);
+        holder.tvName.setText(description);
+        holder.tvDate.setText(updatedAt);
+        holder.ivProfile.setImageURI(Uri.parse(profileEntity.getImageUri()));
+        holder.tvEmail.setText(profileEntity.getEmail());
+        holder.tvPhone.setText(profileEntity.getPhone());
+        holder.tvBio.setText(profileEntity.getBio());
+        holder.tvGender.setText(profileEntity.getGender());
+        holder.tvDevice.setText(profileEntity.getDeviceType());
 
-        String priorityString = "" + priority;
-        holder.priorityView.setText(priorityString);
-
-        GradientDrawable priorityCircle = (GradientDrawable) holder.priorityView.getBackground();
-        int priorityColor = getPriorityColor(priority);
-        priorityCircle.setColor(priorityColor);
-    }
-
-    private int getPriorityColor(int priority) {
-        int priorityColor = 0;
-
-        switch (priority) {
-            case 1:
-                priorityColor = ContextCompat.getColor(mContext, R.color.materialRed);
-                break;
-            case 2:
-                priorityColor = ContextCompat.getColor(mContext, R.color.materialOrange);
-                break;
-            case 3:
-                priorityColor = ContextCompat.getColor(mContext, R.color.materialYellow);
-                break;
-            default:
-                break;
-        }
-        return priorityColor;
+//        setDeviceType(holder.ivDeviceType,profileEntity.getDeviceType());
     }
 
     @Override
     public int getItemCount() {
-        if (mTaskEntries == null) {
+        if (profileEntities == null) {
             return 0;
         }
-        return mTaskEntries.size();
+        return profileEntities.size();
     }
 
-    public void setTasks(List<Profile> taskEntries) {
-        mTaskEntries = taskEntries;
+    public void setProfiles(List<ProfileEntity> profiles) {
+        profileEntities = profiles;
         notifyDataSetChanged();
     }
 
-    public List<Profile> getTasks() {
-        return mTaskEntries;
+
+    public List<ProfileEntity> getProfiles() {
+        return profileEntities;
     }
 
     public interface ItemClickListener {
         void onItemClickListener(int itemId);
     }
 
-    class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class profilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView taskDescriptionView;
-        TextView updatedAtView;
-        TextView priorityView;
+        TextView tvName;
+        TextView tvDate;
+        TextView tvEmail;
+        TextView tvPhone;
+        TextView tvBio;
+        TextView tvGender;
+        ImageView ivProfile;
+        TextView tvDevice;
 
-        public TaskViewHolder(View itemView) {
+
+        public profilesViewHolder(View itemView) {
             super(itemView);
 
-            taskDescriptionView = itemView.findViewById(R.id.taskDescription);
-            updatedAtView = itemView.findViewById(R.id.taskUpdatedAt);
-            priorityView = itemView.findViewById(R.id.priorityTextView);
+            tvName = itemView.findViewById(R.id.tv_name);
+            tvDate = itemView.findViewById(R.id.tv_date);
+            tvEmail = itemView.findViewById(R.id.tv_email);
+            tvPhone = itemView.findViewById(R.id.tv_phone);
+            ivProfile = itemView.findViewById(R.id.iv_profile);
+            tvDevice = itemView.findViewById(R.id.tv_device);
+            tvBio = itemView.findViewById(R.id.tv_bio);
+            tvGender = itemView.findViewById(R.id.tv_gender);
+
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            int elementId = mTaskEntries.get(getAdapterPosition()).getId();
+            int elementId = profileEntities.get(getAdapterPosition()).getId();
             mItemClickListener.onItemClickListener(elementId);
         }
     }

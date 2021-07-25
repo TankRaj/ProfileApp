@@ -3,7 +3,6 @@ package com.tankraj.profiledemo.ui.addprofile;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -22,13 +21,19 @@ import com.tankraj.profiledemo.R;
 import com.tankraj.profiledemo.databinding.ActivityAddProfileBinding;
 import com.tankraj.profiledemo.db.AppDatabase;
 import com.tankraj.profiledemo.db.AppExecutors;
-import com.tankraj.profiledemo.model.Profile;
+import com.tankraj.profiledemo.entity.ProfileEntity;
 import com.tankraj.profiledemo.utils.Commons;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import static android.text.TextUtils.isEmpty;
 import static com.tankraj.profiledemo.utils.Commons.REQUEST_ID_MULTIPLE_PERMISSIONS;
 import static com.tankraj.profiledemo.utils.Commons.checkAndRequestPermissions;
+import static com.tankraj.profiledemo.utils.Commons.checkEmpty;
+import static com.tankraj.profiledemo.utils.Commons.isValidEmail;
+import static com.tankraj.profiledemo.utils.Commons.isValidMobile;
+import static com.tankraj.profiledemo.utils.Commons.showToast;
 
 
 public class AddProfileActivity extends AppCompatActivity {
@@ -39,6 +44,9 @@ public class AddProfileActivity extends AppCompatActivity {
     private static final String TAG = AddProfileActivity.class.getSimpleName();
 
     private int mProfId = DEFAULT_PROF_ID;
+    private String imageUri;
+    private String gender;
+    private String device;
 
     ActivityAddProfileBinding binding;
     private AppDatabase mDb;
@@ -48,24 +56,18 @@ public class AddProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_add_profile);
 
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        // There are no request codes
-                        Intent data = result.getData();
-                        Uri selectedImageUri = data.getData();
-                        if (null != selectedImageUri) {
-                            binding.ivProfile.setImageURI(selectedImageUri);
-                        }
+                        handleImage(result.getData());
                     }
                 });
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_add_profile);
 
         initViews();
-
         mDb = AppDatabase.getInstance(getApplicationContext());
 
         if (savedInstanceState != null && savedInstanceState.containsKey(INSTANCE_PROF_ID)) {
@@ -79,14 +81,22 @@ public class AddProfileActivity extends AppCompatActivity {
                 mProfId = intent.getIntExtra(EXTRA_PROF_ID, DEFAULT_PROF_ID);
                 AddProfileViewModelFactory factory = new AddProfileViewModelFactory(mDb, mProfId);
                 viewModel = ViewModelProviders.of(this, factory).get(AddProfileViewModel.class);
-                viewModel.getTask().observe(this, new Observer<Profile>() {
+                viewModel.getProfile().observe(this, new Observer<ProfileEntity>() {
                     @Override
-                    public void onChanged(Profile profile) {
-                        viewModel.getTask().removeObserver(this);
-                        populateUI(profile);
+                    public void onChanged(ProfileEntity profileEntity) {
+                        viewModel.getProfile().removeObserver(this);
+                        populateUI(profileEntity);
                     }
                 });
             }
+        }
+    }
+
+    private void handleImage(Intent data) {
+        Uri selectedImageUri = data.getData();
+        if (null != selectedImageUri) {
+            binding.ivProfile.setImageURI(selectedImageUri);
+            imageUri = selectedImageUri.toString();
         }
     }
 
@@ -97,71 +107,150 @@ public class AddProfileActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-//        mEditText = findViewById(R.id.editTextTaskDescription);
-//        mRadioGroup = findViewById(R.id.radioGroup);
-//
 //        mButton = findViewById(R.id.saveButton);
         binding.ivProfile.setOnClickListener(v -> {
-            if(checkAndRequestPermissions(this)){
+            if (checkAndRequestPermissions(this)) {
                 chooseImage(this);
             }
+        });
+        binding.rbAndroid.setChecked(true);
+        binding.rbMale.setChecked(true);
+        binding.rgGender.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId) {
+                case R.id.rb_male:
+                    gender = getResources().getString(R.string.male);
+                    break;
+                case R.id.rb_female:
+                    gender = getResources().getString(R.string.female);
+                    break;
+                case R.id.rb_others:
+                    gender = getResources().getString(R.string.others);
+            }
+
+        });
+        binding.rgGender.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId) {
+                case R.id.rb_male:
+                    gender = getResources().getString(R.string.male);
+                    break;
+                case R.id.rb_female:
+                    gender = getResources().getString(R.string.female);
+                    break;
+                case R.id.rb_others:
+                    gender = getResources().getString(R.string.others);
+                    break;
+            }
+
+        });
+        binding.rgDevice.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId) {
+                case R.id.rb_android:
+                    device = getResources().getString(R.string.android);
+                    break;
+                case R.id.rb_ios:
+                    device = getResources().getString(R.string.ios);
+                    break;
+                case R.id.rb_other_device:
+                    device = getResources().getString(R.string.others);
+                    break;
+            }
+
         });
         binding.btnSubmit.setOnClickListener(view -> onSaveButtonClicked());
     }
 
-    private void populateUI(Profile profile) {
-        if (profile == null) {
+    private void populateUI(ProfileEntity profileEntity) {
+        if (profileEntity == null) {
             return;
         }
 
-        binding.etName.setText(profile.getDescription());
-//        setPriorityInViews(task.getPriority());
+        binding.etName.setText(profileEntity.getName());
+        binding.etEmail.setText(profileEntity.getEmail());
+        binding.etPhone.setText(profileEntity.getPhone());
+        binding.etBio.setText(profileEntity.getBio());
+
+        gender = profileEntity.getGender();
+        device = profileEntity.getDeviceType();
+        imageUri = profileEntity.getImageUri();
+
+        if (profileEntity.getDeviceType().equalsIgnoreCase(getString(R.string.android))){
+            binding.rbAndroid.setChecked(true);
+        }else if (profileEntity.getDeviceType().equalsIgnoreCase(getString(R.string.ios))){
+            binding.rbIos.setChecked(true);
+        }else {
+            binding.rbOtherDevice.setChecked(true);
+        }
+        if (profileEntity.getGender().equalsIgnoreCase(getString(R.string.male))){
+            binding.rbMale.setChecked(true);
+        }else if (profileEntity.getGender().equalsIgnoreCase(getString(R.string.female))){
+            binding.rbFemale.setChecked(true);
+        }else {
+            binding.rbOthers.setChecked(true);
+        }
+
+        binding.ivProfile.setImageURI(Uri.parse(profileEntity.getImageUri()));
     }
 
     public void onSaveButtonClicked() {
-        String description = binding.etName.getText().toString();
-//        int priority = getPriorityFromViews();
+        String name = binding.etName.getText().toString();
+        String email = binding.etEmail.getText().toString();
+        String phone = binding.etPhone.getText().toString();
+        String bio = binding.etBio.getText().toString();
         Date date = new Date();
 
-        final Profile task = new Profile(description, 2, date);
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
+        if (checkEmpty(name)) {
+            showToast(this, "Name cannot be empty!");
+        } else if (checkEmpty(email)) {
+            showToast(this, "Email cannot be empty!");
+        } else if (checkEmpty(phone)) {
+            showToast(this, "Email cannot be empty!");
+        } else if (checkEmpty(bio)) {
+            showToast(this, "Bio cannot be empty!");
+        } else if (checkEmpty(imageUri)) {
+            showToast(this, "Profile image not selected!");
+        }else if (!isValidEmail(email)) {
+            showToast(this, "Please enter valid email address!");
+        } else if (!isValidMobile(phone)) {
+            showToast(this, "Please enter valid phone number!");
+        } else {
+            if (checkEmpty(gender))
+                gender = getResources().getString(R.string.male);
+            if (checkEmpty(device))
+                device = getResources().getString(R.string.android);
+//        final ProfileEntity profileEntity = new ProfileEntity(name,  date);
+            final ProfileEntity profileEntity = new ProfileEntity(name, email, phone, bio, device, imageUri, gender, date);
+            AppExecutors.getInstance().diskIO().execute(() -> {
                 if (mProfId == DEFAULT_PROF_ID) {
-                    mDb.taskDao().insertTask(task);
+                    mDb.profileDao().insertProfile(profileEntity);
                 } else {
-                    task.setId(mProfId);
-                    viewModel.updateTask(task);
+                    profileEntity.setId(mProfId);
+                    viewModel.updateProfile(profileEntity);
                 }
                 finish();
-            }
-        });
+            });
+        }
     }
 
-    private void chooseImage(Context context){
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
+    private void chooseImage(Context context) {
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"};
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(optionsMenu[i].equals("Take Photo")){
-                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    activityResultLauncher.launch(takePicture);
-                }
-                else if(optionsMenu[i].equals("Choose from Gallery")){
-                    Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    activityResultLauncher.launch(pickPhoto);
-                }
-                else if (optionsMenu[i].equals("Exit")) {
-                    dialogInterface.dismiss();
-                }
+        builder.setItems(optionsMenu, (dialogInterface, i) -> {
+            /*if (optionsMenu[i].equals("Take Photo")) {
+                Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                activityResultLauncher.launch(takePicture);
+            } else*/
+            if (optionsMenu[i].equals("Choose from Gallery")) {
+                Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                activityResultLauncher.launch(pickPhoto);
+            } else if (optionsMenu[i].equals("Exit")) {
+                dialogInterface.dismiss();
             }
         });
         builder.show();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_ID_MULTIPLE_PERMISSIONS:
@@ -178,6 +267,12 @@ public class AddProfileActivity extends AppCompatActivity {
                 break;
 
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        viewModel.onCleared();
     }
 
 }

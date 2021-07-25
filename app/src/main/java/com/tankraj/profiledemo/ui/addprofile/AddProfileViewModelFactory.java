@@ -7,15 +7,15 @@ import com.tankraj.profiledemo.db.AppDatabase;
 
 public class AddProfileViewModelFactory extends ViewModelProvider.NewInstanceFactory {
     private final AppDatabase mDb;
-    private final int mTaskId;
+    private final int mProfId;
 
-    public AddProfileViewModelFactory(AppDatabase database, int taskId) {
+    public AddProfileViewModelFactory(AppDatabase database, int profId) {
         mDb = database;
-        mTaskId = taskId;
+        mProfId = profId;
     }
 
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
-        return (T) new AddProfileViewModel(mDb, mTaskId);
+        return (T) new AddProfileViewModel(mDb, mProfId);
     }
 }
