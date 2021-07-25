@@ -5,16 +5,16 @@ import androidx.lifecycle.ViewModel;
 
 import com.tankraj.profiledemo.db.AppDatabase;
 import com.tankraj.profiledemo.entity.ProfileEntity;
-import com.tankraj.profiledemo.repository.local.ProfileRepLocalository;
+import com.tankraj.profiledemo.repository.local.LocalRepository;
 
 public class AddProfileViewModel extends ViewModel {
 
     private LiveData<ProfileEntity> profile;
-    private final ProfileRepLocalository profileRepLocalository;
+    private final LocalRepository localRepository;
 
     public AddProfileViewModel(AppDatabase database, int profileId) {
-        profileRepLocalository = new ProfileRepLocalository(database);
-        profile = profileRepLocalository.loadProfileById(profileId);
+        localRepository = new LocalRepository(database);
+        profile = localRepository.loadProfileById(profileId);
     }
 
     public LiveData<ProfileEntity> getProfile() {
@@ -22,10 +22,10 @@ public class AddProfileViewModel extends ViewModel {
     }
 
     public void updateProfile(ProfileEntity profileEntity) {
-        profileRepLocalository.updateProfileById(profileEntity);
+        localRepository.updateProfileById(profileEntity);
     }
     public void insertProfile(ProfileEntity profileEntity) {
-        profileRepLocalository.insertProfile(profileEntity);
+        localRepository.insertProfile(profileEntity);
     }
 
     @Override

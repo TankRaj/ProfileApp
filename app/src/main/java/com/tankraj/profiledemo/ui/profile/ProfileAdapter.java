@@ -48,7 +48,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.profiles
 
         ProfileEntity profileEntity = profileEntities.get(position);
         String description = profileEntity.getName();
-//        int priority = profileEntity.getPriority();
         String updatedAt = dateFormat.format(profileEntity.getUpdatedAt());
 
         holder.tvName.setText(description);

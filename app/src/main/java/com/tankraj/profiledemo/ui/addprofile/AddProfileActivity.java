@@ -24,10 +24,8 @@ import com.tankraj.profiledemo.db.AppExecutors;
 import com.tankraj.profiledemo.entity.ProfileEntity;
 import com.tankraj.profiledemo.utils.Commons;
 
-import java.util.Calendar;
 import java.util.Date;
 
-import static android.text.TextUtils.isEmpty;
 import static com.tankraj.profiledemo.utils.Commons.REQUEST_ID_MULTIPLE_PERMISSIONS;
 import static com.tankraj.profiledemo.utils.Commons.checkAndRequestPermissions;
 import static com.tankraj.profiledemo.utils.Commons.checkEmpty;
@@ -232,14 +230,14 @@ public class AddProfileActivity extends AppCompatActivity {
     }
 
     private void chooseImage(Context context) {
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"};
+        final CharSequence[] optionsMenu = {"Choose Photo", "Exit"};
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setItems(optionsMenu, (dialogInterface, i) -> {
             /*if (optionsMenu[i].equals("Take Photo")) {
                 Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 activityResultLauncher.launch(takePicture);
             } else*/
-            if (optionsMenu[i].equals("Choose from Gallery")) {
+            if (optionsMenu[i].equals("Choose Photo")) {
                 Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 activityResultLauncher.launch(pickPhoto);
             } else if (optionsMenu[i].equals("Exit")) {

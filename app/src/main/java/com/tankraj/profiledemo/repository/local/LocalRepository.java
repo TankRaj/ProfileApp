@@ -8,12 +8,12 @@ import com.tankraj.profiledemo.entity.ProfileEntity;
 
 import java.util.List;
 
-public class ProfileRepLocalository {
-    private static final String LOG_TAG = ProfileRepLocalository.class.getSimpleName();
+public class LocalRepository {
+    private static final String LOG_TAG = LocalRepository.class.getSimpleName();
     private LiveData<List<ProfileEntity>> profiles;
     private ProfileDao profileDao;
     AppDatabase database;
-    public ProfileRepLocalository(AppDatabase database) {
+    public LocalRepository(AppDatabase database) {
         this.database = database;
     }
 

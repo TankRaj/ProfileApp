@@ -1,14 +1,13 @@
 package com.tankraj.profiledemo.ui.profile;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.tankraj.profiledemo.db.AppDatabase;
 import com.tankraj.profiledemo.entity.ProfileEntity;
-import com.tankraj.profiledemo.repository.local.ProfileRepLocalository;
+import com.tankraj.profiledemo.repository.local.LocalRepository;
 
 import java.util.List;
 
@@ -19,13 +18,13 @@ public class ProfileViewModel extends AndroidViewModel {
     private static final String TAG = ProfileViewModel.class.getSimpleName();
 
     private LiveData<List<ProfileEntity>> profiles;
-    private final ProfileRepLocalository profileRepLocalository;
+    private final LocalRepository localRepository;
     public ProfileViewModel(Application application) {
         super(application);
         AppDatabase database = AppDatabase.getInstance(this.getApplication());
         LogDebugger(TAG, "Actively retrieving the profiles from the DataBase");
-        profileRepLocalository = new ProfileRepLocalository(database);
-        profiles = profileRepLocalository.loadAllProfiles();
+        localRepository = new LocalRepository(database);
+        profiles = localRepository.loadAllProfiles();
     }
 
     public LiveData<List<ProfileEntity>> getProfiles() {
@@ -33,6 +32,6 @@ public class ProfileViewModel extends AndroidViewModel {
     }
 
     public void deleteProfiles(ProfileEntity profileEntity) {
-        profileRepLocalository.deleteProfiles(profileEntity);
+        localRepository.deleteProfiles(profileEntity);
     }
 }
